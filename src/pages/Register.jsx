@@ -37,28 +37,36 @@ const Register = () => {
     formData.append("password", data.password.trim());
     formData.append("mobile", data.mobile);
     formData.append("dob", data.dob);
-    formData.append("profile", data.profile[0]); // File
-    console.log(data, "Data before FormData conversion");
+    formData.append("profile", data.profile[0]); // File upload
+
     try {
       const res = await axios.post(`${BASE_URL}/users/register`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
       if (res.status === 201) {
-        showToast(res.data.message);
+        // ✅ Store token + user like login
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+
+        showToast(res.data.message || "Registered & logged in");
+
+        // ✅ Redirect to home (or chat page)
         setTimeout(() => {
-          navigate('/login');
+          navigate("/");
           reset();
-        }, 2200);
-        reset();
+        }, 2000);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      // alert(error?.response?.data?.message || "Something went wrong");
-      showToast(error?.response?.data?.message || "Something went wrong", "error");
-    }
-  };
+      showToast(
+        error?.response?.data?.message || "Something went wrong",
+          "error"
+        );
+      }
+    };
 
   return (
     <>
